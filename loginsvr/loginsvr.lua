@@ -4,7 +4,7 @@ local crypt = require "crypt"
 local args = table.pack(...)
 assert(args.n >= 1)
 local mode = assert(args[1])
-local instance = args[args.n]
+local instance = args[2] or 1
 
 local users = {}  -- usrid --> user info: {usrid, conn, svrid}
 
