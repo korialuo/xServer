@@ -2,17 +2,18 @@ local skynet = require "skynet"
 
 skynet.start(function()
     local conf = {
-        address = assert(tostring(skynet.getenv("address"))),
-        port = assert(tonumber(skynet.getenv("port"))),
+        address = assert(tostring(skynet.getenv("login_address"))),
+        port = assert(tonumber(skynet.getenv("login_port"))),
         maxclient = assert(tonumber(skynet.getenv("maxclient"))),
         nodelay = not not (skynet.getenv("nodelay") == "true")
     }
-    local instance = tonumber(skynet.getenv("instance"))
-    skynet.call(
-        skynet.newservice("gatesvr", skynet.newservice("loginsvr", "master", instance)),
-        "lua",
-        "open",
-        conf
-    )
+    local login_instance = tonumber(skynet.getenv("login_instance"))
+    local db_instance = tonumber(skynet.getenv("db_instance"))
+
+    local logindb = skynet.newservice("logindb", "master", db_instance)
+    local loginsvr = skynet.newservice("loginsvr", "master", logindb, login_instance)
+    local logingate = skynet.newservice("logingate", loginsvr)
+
+    skynet.call(logingate, "lua", "open", conf)
     skynet.exit()
 end)

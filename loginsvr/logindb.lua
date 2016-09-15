@@ -1,32 +1,19 @@
 local skynet = require "skynet"
-local crypt = require "crypt"
+local mysql = require "mysql"
 
 local args = table.pack(...)
-print(args[1], args[2], args[3])
-assert(args.n >= 2)
+assert(args.n >= 1)
 local mode = assert(args[1])
-local logindb = assert(args[2])
-local instance = args[3] or 1
+local instance = args[2] or 1
 
 local slaves = {}
 local balance = 1
-
-local users = {}  -- usrid --> user info: {usrid, conn, svrid}
+local database
 
 local CMD = {}
 
-function CMD.login(conn, msg)
-    -- the token is base64(user)@base64(server):base64(password)
-    local token = crypt.desdecode(conn.secret, crypt.base64decode(msg))
-    local user, server, password = string.match(token, "([^@]+)@([^:]+):(.+)")
-    user = crypt.base64decode(user)
-    server = crypt.base64decode(server)
-    password = crypt.base64decode(password)
-    -- TODO: verify the user and passoword, then alloc the usrid and return to gateserver
-end
+function CMD.query(qstr)
 
-function CMD.logout(usrid)
-    -- TODO: cleanup binded user info
 end
 
 local function dispatch_message(cmd, ...)
@@ -43,11 +30,29 @@ local function dispatch_message(cmd, ...)
     end
 end
 
+local function connect_db()
+    database = mysql.connect({
+        host = assert(skynet.getenv("db_address")),
+        port = assert(tonumber(skynet.getenv("db_port"))),
+        database = assert(skynet.getenv("db_name")),
+        user = assert(skynet.getenv("db_user")),
+        password = assert(skynet.getenv("db_password")),
+        max_packet_size = assert(tonumber(skynet.getenv("db_maxpacketsz"))),
+        on_connect = function(db)
+            db:query("set charset utf8")
+        end
+    })
+    if not database then
+        skynet.error("Failed to connect to database !")
+    end
+    skynet.error("Success to connect to database.")
+end
+
 if mode == "master" then
     skynet.start(function()
         -- launch slave service
         for _ = 1, instance do
-            table.insert(slaves, skynet.newservice(SERVICE_NAME, "slave", logindb))
+            table.insert(slaves, skynet.newservice(SERVICE_NAME, "slave"))
         end
         -- dispatch message
         skynet.dispatch("lua", function(_, _, command, ...)
@@ -55,6 +60,7 @@ if mode == "master" then
         end)
     end)
 elseif mode == "slave" then
+    connect_db()
     skynet.start(function()
         skynet.dispatch("lua", function(_, _, command, ...)
             skynet.ret(skynet.pack(dispatch_message(command, ...)))
