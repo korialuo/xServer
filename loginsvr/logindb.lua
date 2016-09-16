@@ -60,8 +60,8 @@ if mode == "master" then
         end)
     end)
 elseif mode == "slave" then
-    connect_db()
     skynet.start(function()
+        connect_db()
         skynet.dispatch("lua", function(_, _, command, ...)
             skynet.ret(skynet.pack(dispatch_message(command, ...)))
         end)

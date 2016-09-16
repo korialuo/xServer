@@ -1,3 +1,8 @@
 .gitignore
 .idea/
 xServer.iml
+cservice/
+luaclib/
+lualib/
+service/
+skynet
