@@ -11,7 +11,7 @@ skynet.start(function()
     local db_instance = tonumber(skynet.getenv("db_instance"))
 
     local logindb = skynet.newservice("logindb", "master", db_instance)
-    local loginsvr = skynet.newservice("loginsvr", "master", logindb, login_instance)
+    local loginsvr = skynet.uniqueservice(true, "loginsvr", "master", logindb, login_instance)
     local logingate = skynet.newservice("logingate", loginsvr)
 
     skynet.call(logingate, "lua", "open", conf)

@@ -12,8 +12,8 @@ local database
 
 local CMD = {}
 
-function CMD.query(qstr)
-
+function CMD.query(q)
+    return database:query(q)
 end
 
 local function dispatch_message(cmd, ...)

@@ -22,6 +22,9 @@ function CMD.login(conn, msg)
     user = crypt.base64decode(user)
     server = crypt.base64decode(server)
     password = crypt.base64decode(password)
+    local q = "CALL login('"..user.."', "..password.."');"
+    q = skynet.call(logindb, "lua", "query", q)
+
     -- TODO: verify the user and passoword, then alloc the usrid and return to gateserver
 end
 

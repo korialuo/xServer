@@ -4,7 +4,7 @@ local socketdriver = require "socketdriver"
 local netpack = require "netpack"
 local crypt = require "crypt"
 
-local loginsvr = assert(...)
+local chatsvr = assert(...)
 local connections = {}
 local handler = {}
 local CMD = {}
@@ -12,14 +12,11 @@ local CMD = {}
 local function do_cleanup(fd)
     local conn = connections[fd]
     if conn then connections[fd] = nil end
-    gateserver.closeclient(fd)
+    gateserver.closeclient(conn.fd)
 end
 
-local function do_login(conn, msg, sz)
-    skynet.call(loginsvr, "lua", "login", conn, netpack.tostring(msg, sz))
-
-    -- finally, close the connection.
-    do_cleanup(conn.fd)
+local function do_dispatchmsg(conn, msg, sz)
+    return skynet.call(chatsvr, "lua", "dispatchmsg", conn, netpack.tostring(msg, sz))
 end
 
 local function do_verify(conn, msg, sz)
@@ -29,7 +26,7 @@ local function do_verify(conn, msg, sz)
         skynet.error("Connection("..fd..") do verify error.")
         do_cleanup(conn.fd)
     end
-    conn.proc = do_login
+    conn.proc = do_dispatchmsg
 end
 
 local function do_auth(conn, msg, sz)
