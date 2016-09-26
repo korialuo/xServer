@@ -1,8 +1,9 @@
 .gitignore
-.idea/
+/.idea
 xServer.iml
-cservice/
-luaclib/
-lualib/
-service/
+/cservice
+/luaclib
+/lualib
+/service
+/log
 skynet
