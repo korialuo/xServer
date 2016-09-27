@@ -2,7 +2,6 @@ local skynet = require "skynet"
 local crypt = require "crypt"
 
 local args = table.pack(...)
-print(args[1], args[2], args[3])
 assert(args.n >= 2)
 local mode = assert(args[1])
 local logindb = assert(args[2])

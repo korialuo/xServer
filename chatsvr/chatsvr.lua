@@ -3,7 +3,7 @@ local skynet = require "skynet"
 local CMD = {}
 
 function CMD.dipatchmsg(msg)
-
+    return true;
 end
 
 skynet.start(function()

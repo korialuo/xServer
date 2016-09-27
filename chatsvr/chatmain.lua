@@ -10,6 +10,6 @@ skynet.start(function()
     local chatsvr = skynet.uniqueservice(true, "chatsvr")
     local chatgate = skynet.newservice("chatgate", chatsvr)
 
-    skynet.call("lua", chatgate, "open", conf)
+    skynet.call(chatgate, "lua", "open", conf)
     skynet.exit()
 end)
