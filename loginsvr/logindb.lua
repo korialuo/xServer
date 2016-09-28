@@ -4,7 +4,7 @@ local mysql = require "mysql"
 local args = table.pack(...)
 assert(args.n >= 1)
 local mode = assert(args[1])
-local instance = args[2] or 1
+local instance = tonumber(args[2] or 1)
 
 local slaves = {}
 local balance = 1
@@ -39,7 +39,7 @@ local function connect_db()
         password = assert(skynet.getenv("db_password")),
         max_packet_size = assert(tonumber(skynet.getenv("db_maxpacketsz"))),
         on_connect = function(db)
-            db:query("set charset utf8")
+            db:query("set charset utf8mb4")
         end
     })
     if not database then

@@ -7,7 +7,7 @@ skynet.start(function()
         maxclient = assert(tonumber(skynet.getenv("maxclient"))),
         nodelay = not not (skynet.getenv("nodelay") == "true")
     }
-    local chatsvr = skynet.uniqueservice(true, "chatsvr")
+    local chatsvr = skynet.uniqueservice("chatsvr")
     local chatgate = skynet.newservice("chatgate", chatsvr)
 
     skynet.call(chatgate, "lua", "open", conf)

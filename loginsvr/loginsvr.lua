@@ -1,5 +1,7 @@
 local skynet = require "skynet"
 local crypt = require "crypt"
+local sproto = require "sproto"
+local spcore = require "sproto.core"
 
 local args = table.pack(...)
 assert(args.n >= 2)
@@ -12,9 +14,9 @@ local balance = 1
 
 local users = {}  -- usrid --> user info: {usrid, conn, svrid}
 
-local CMD = {}
+local MSG = {}
 
-function CMD.login(conn, msg)
+function MSG.login(conn, msg)
     -- the token is base64(user)@base64(server):base64(password)
     local token = crypt.desdecode(conn.secret, crypt.base64decode(msg))
     local user, server, password = string.match(token, "([^@]+)@([^:]+):(.+)")
@@ -27,8 +29,14 @@ function CMD.login(conn, msg)
     -- TODO: verify the user and passoword, then alloc the usrid and return to gateserver
 end
 
-function CMD.logout(usrid)
-    -- TODO: cleanup binded user info
+local CMD = {}
+
+function CMD.msg(conn, msg)
+    local msgcmd, msgdata = string.match(msg, "#([^#]+)#(.*)")
+    if not msgcmd then return false end
+    local f = MSG[msgcmd]
+    if f then return f(conn, msg) end
+    return false
 end
 
 local function dispatch_message(cmd, ...)

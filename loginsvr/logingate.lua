@@ -15,11 +15,10 @@ local function do_cleanup(fd)
     gateserver.closeclient(fd)
 end
 
-local function do_login(conn, msg, sz)
-    skynet.call(loginsvr, "lua", "login", conn, netpack.tostring(msg, sz))
-
-    -- finally, close the connection.
-    do_cleanup(conn.fd)
+local function do_dispatchmsg(conn, msg, sz)
+    if not skynet.call(loginsvr, "lua", "msg", conn, netpack.tostring(msg, sz)) then
+        do_cleanup(conn.fd)
+    end
 end
 
 local function do_verify(conn, msg, sz)
