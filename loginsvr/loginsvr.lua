@@ -7,7 +7,7 @@ local args = table.pack(...)
 assert(args.n >= 2)
 local mode = assert(args[1])
 local logindb = assert(args[2])
-local instance = args[3] or 1
+local instance = tonumber(args[3] or 1)
 
 local slaves = {}
 local balance = 1

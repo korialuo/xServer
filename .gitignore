@@ -1,5 +1,6 @@
 .gitignore
 /.idea
+/.vscode
 xServer.iml
 /cservice
 /luaclib
