@@ -12,7 +12,7 @@ local CMD = {}
 local function do_cleanup(fd)
     local conn = connections[fd]
     if conn then connections[fd] = nil end
-    gateserver.closeclient(fd)
+    --gateserver.closeclient(fd)
 end
 
 local function do_dispatchmsg(conn, msg, sz)
