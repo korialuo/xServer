@@ -12,7 +12,6 @@ local CMD = {}
 local function do_cleanup(fd)
     local conn = connections[fd]
     if conn then connections[fd] = nil end
-    --gateserver.closeclient(fd)
 end
 
 local function do_dispatchmsg(conn, msg, sz)
@@ -24,7 +23,7 @@ local function do_verify(conn, msg, sz)
     local verify = crypt.hmac64(conn.challenge, conn.secret)
     if hmac ~= verify then
         skynet.error("Connection("..fd..") do verify error.")
-        do_cleanup(conn.fd)
+        gateserver.closeclient(conn.fd)
     end
     conn.proc = do_dispatchmsg
 end
@@ -39,7 +38,7 @@ local function do_auth(conn, msg, sz)
         conn.proc = do_verify
     else
         skynet.error("Connection("..conn.fd..") do auth error.")
-        do_cleanup(conn.fd)
+        gateserver.closeclient(conn.fd)
     end
 end
 
@@ -68,7 +67,7 @@ end
 
 function handler.error(fd, msg)
     skynet.error("Connection("..fd..") error: "..msg)
-    do_cleanup(fd)
+    gateserver.closeclient(fd)
 end
 
 function handler.message(fd, msg, sz)
@@ -77,7 +76,7 @@ function handler.message(fd, msg, sz)
         conn.proc(conn, msg, sz)
     else
         skynet.error("Unknown connection("..fd..").");
-        do_cleanup(fd)
+        gateserver.closeclient(fd)
     end
 end
 
