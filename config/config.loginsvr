@@ -15,10 +15,10 @@ lua_cpath = root .. "luaclib/?.so"
 cpath = root.."cservice/?.so"
 
 login_address = "0.0.0.0"
-login_port = 11001
+login_port_from = 11001
+login_port_to = 11002
 maxclient = 1024
 nodelay = true
-login_instance = 2
 
 db_address = "127.0.0.1"
 db_port = 3306

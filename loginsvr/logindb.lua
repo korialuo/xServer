@@ -4,7 +4,7 @@ local mysql = require "mysql"
 local args = table.pack(...)
 assert(args.n >= 1)
 local mode = assert(args[1])
-local instance = tonumber(args[2] or 1)
+local instance = assert(tonumber(args[2] or 1))
 
 local slaves = {}
 local balance = 1
@@ -55,14 +55,14 @@ if mode == "master" then
             table.insert(slaves, skynet.newservice(SERVICE_NAME, "slave"))
         end
         -- dispatch message
-        skynet.dispatch("lua", function(_, _, command, ...)
+        skynet.dispatch("lua", function(session, source, command, ...)
             skynet.ret(skynet.pack(dispatch_message(command, ...)))
         end)
     end)
 elseif mode == "slave" then
     skynet.start(function()
         connect_db()
-        skynet.dispatch("lua", function(_, _, command, ...)
+        skynet.dispatch("lua", function(session, source, command, ...)
             skynet.ret(skynet.pack(dispatch_message(command, ...)))
         end)
     end)

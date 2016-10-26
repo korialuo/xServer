@@ -15,7 +15,7 @@ local function do_cleanup(fd)
 end
 
 local function do_dispatchmsg(conn, msg, sz)
-    return skynet.call(chatsvr, "lua", "dispatchmsg", conn, netpack.tostring(msg, sz))
+    return skynet.send(chatsvr, "client", conn, msg, sz)
 end
 
 local function do_verify(conn, msg, sz)

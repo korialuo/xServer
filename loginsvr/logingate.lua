@@ -4,7 +4,7 @@ local socketdriver = require "socketdriver"
 local netpack = require "netpack"
 local crypt = require "crypt"
 
-local loginsvr = assert(...)
+local loginsvr = assert(tonumber(...))
 local connections = {}
 local handler = {}
 local CMD = {}
@@ -15,7 +15,7 @@ local function do_cleanup(fd)
 end
 
 local function do_dispatchmsg(conn, msg, sz)
-    if not skynet.call(loginsvr, "lua", "msg", conn, netpack.tostring(msg, sz)) then
+    if not skynet.send(loginsvr, "client", conn, msg, sz) then
         gateserver.closeclient(conn.fd)
     end
 end

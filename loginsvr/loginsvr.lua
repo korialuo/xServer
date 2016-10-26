@@ -1,73 +1,39 @@
 local skynet = require "skynet"
+local socketdriver = require "socketdriver"
 local crypt = require "crypt"
-local sproto = require "sproto"
-local spcore = require "sproto.core"
+local cjson = require "cjson"
 
-local args = table.pack(...)
-assert(args.n >= 2)
-local mode = assert(args[1])
-local logindb = assert(args[2])
-local instance = tonumber(args[3] or 1)
-
-local slaves = {}
-local balance = 1
+local logindb = assert(tonumber(...))
+skynet.register_protocol {
+    name = "client",
+    id = skynet.PTYPE_CLIENT,
+    unpack = skynet.tostring
+}
 
 local users = {}  -- usrid --> user info: {usrid, conn, svrid}
 
 local MSG = {}
 
 function MSG.login(conn, msg)
-    -- the token is base64(user)@base64(server):base64(password)
-    local token = crypt.desdecode(conn.secret, crypt.base64decode(msg))
-    local user, server, password = string.match(token, "([^@]+)@([^:]+):(.+)")
-    user = crypt.base64decode(user)
-    server = crypt.base64decode(server)
-    password = crypt.base64decode(password)
+    local user, server, password = msg.u, msg.s, msg.p
     local q = "CALL login('"..user.."', "..password.."');"
     q = skynet.call(logindb, "lua", "query", q)
-
-    -- TODO: verify the user and passoword, then alloc the usrid and return to gateserver
+    -- TODO: verify the user and passoword, then return to client
 end
 
-local CMD = {}
-
-function CMD.msg(conn, msg)
-    local msgcmd, msgdata = string.match(msg, "#([^#]+)#(.*)")
-    if not msgcmd then return false end
-    local f = MSG[msgcmd]
-    if f then return f(conn, msg) end
-    return false
-end
-
-local function dispatch_message(cmd, ...)
-    if mode == "master" then
-        local slv = slaves[balance]
-        balance = balance + 1
-        if balance > instance then
-            balance = 1
+skynet.start(function()
+    skynet.dispatch("client", function(session, source, conn, msg, ...)
+        local ok, msgdata = pcall(crypt.desdecode, conn.secret, crypt.base64decode(msg))
+        if not ok then skynet.error("Des decode client message error. fd: "..conn.fd) return end
+        ok, msgdata = pcall(cjson.decode, msgdata)
+        if ok then
+            local m = msgdata.__m
+            if m and type(m) == "string" then
+                local f = MSG[m]
+                if not f then skynet.error("Unregisted client message: "..m) else f(conn, msgdata) end
+            end
+        else
+            skynet.error("Parse client message error. fd: "..conn.fd)
         end
-        return skynet.call(slv, "lua", cmd, ...)
-    elseif mode == "slave" then
-        local f = assert(CMD[cmd])
-        return f(...)
-    end
-end
-
-if mode == "master" then
-    skynet.start(function()
-        -- launch slave service
-        for _ = 1, instance do
-            table.insert(slaves, skynet.newservice(SERVICE_NAME, "slave", logindb))
-        end
-        -- dispatch message
-        skynet.dispatch("lua", function(_, _, command, ...)
-            skynet.ret(skynet.pack(dispatch_message(command, ...)))
-        end)
     end)
-elseif mode == "slave" then
-    skynet.start(function()
-        skynet.dispatch("lua", function(_, _, command, ...)
-            skynet.ret(skynet.pack(dispatch_message(command, ...)))
-        end)
-    end)
-end
+end)
