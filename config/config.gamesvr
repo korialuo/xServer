@@ -7,8 +7,22 @@ address = "0.0.0.0:5003"
 master = "127.0.0.1:5000"
 start = "gamemain"
 bootstrap = "snlua bootstrap"
-luaservice = root.."service/?.lua;"..root.."loginsvr/?.lua;"..root.."chatsvr/?.lua;"..root.."gamesvr/?.lua;"
+luaservice = root.."service/?.lua;"..root.."common/?.lua;"..root.."loginsvr/?.lua;"..root.."chatsvr/?.lua;"..root.."gamesvr/?.lua;"
 lualoader = root.."lualib/loader.lua"
 lua_path = root.."lualib/?.lua;"..root.."lualib/?/init.lua"
 lua_cpath = root .. "luaclib/?.so"
 cpath = root.."cservice/?.so"
+
+game_address = "0.0.0.0"
+game_port_from = 13001
+game_port_to = 13002
+maxclient = 1024
+nodelay = true
+
+db_address = "127.0.0.1"
+db_port = 3306
+db_user = "root"
+db_password = "root"
+db_name = "gamedb"
+db_maxpacketsz = 1048576
+db_instance = 2

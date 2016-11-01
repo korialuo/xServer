@@ -3,23 +3,15 @@ local socketdriver = require "socketdriver"
 local crypt = require "crypt"
 local cjson = require "cjson"
 
-local logindb = assert(tonumber(...))
+local gamedb = assert(tonumber(...))
 skynet.register_protocol {
     name = "client",
-    id = skynet.PTYPE_CLIENT,
-    unpack = skynet.tostring
+    id = skynet.PTYPE_CLIENT
 }
 
 local users = {}  -- usrid --> user info: {usrid, conn, svrid}
 
 local MSG = {}
-
-function MSG.login(conn, msg)
-    local user, server, password = msg.u, msg.s, msg.p
-    local q = "CALL login('"..user.."', "..password.."');"
-    q = skynet.call(logindb, "lua", "query", q)
-    -- TODO: verify the user and passoword, then return to client
-end
 
 skynet.start(function()
     skynet.dispatch("client", function(session, source, conn, msg, ...)

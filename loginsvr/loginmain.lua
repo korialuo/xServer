@@ -3,7 +3,7 @@ local skynet = require "skynet"
 skynet.start(function()
     -- start logindb
     local db_instance = tonumber(skynet.getenv("db_instance"))
-    local logindb = skynet.newservice("logindb", "master", db_instance)
+    local logindb = skynet.newservice("mysqldb", "master", db_instance)
     -- start loginsvr
     local loginsvr = skynet.uniqueservice(true, "loginsvr", logindb)
     -- start logingate

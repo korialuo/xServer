@@ -15,9 +15,13 @@ local function do_cleanup(fd)
 end
 
 local function do_dispatchmsg(conn, msg, sz)
-    if not skynet.send(loginsvr, "client", conn, msg, sz) then
-        gateserver.closeclient(conn.fd)
-    end
+    local msgdata = skynet.tostring(msg, sz)
+    local ok = false;
+    ok, msgdata = pcall(crypt.desdecode, conn.secret, msgdata)
+    if not ok then skynet.error("Des decode error, fd: "..conn.fd) end
+    ok, msgdata = pcall(crypt.base64decode(msgdata))
+    if not ok then skynet.error("Base64 decode error: fd: ".. conn.fd) end
+    skynet.send(loginsvr, "client", conn, msgdata)
 end
 
 local function do_verify(conn, msg, sz)
