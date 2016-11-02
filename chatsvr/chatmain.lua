@@ -1,8 +1,11 @@
 local skynet = require "skynet"
+local cluster = require "cluster"
 
 skynet.start(function()
     -- start chatsvr
+    local chat_servername = assert(skynet.getenv("chat_servername"))
     local chatsvr = skynet.uniqueservice("chatsvr")
+    cluster.open(chat_servername)
     -- start chatgate
     local chat_port_from = assert(tonumber(skynet.getenv("chat_port_from")))
     local chat_port_to = assert(tonumber(skynet.getenv("chat_port_to")))

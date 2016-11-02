@@ -2,9 +2,8 @@ root = "./"
 thread = 8
 logger = nil
 logpath = "./log/chatsvr"
-harbor = 2
-address = "0.0.0.0:5002"
-master = "127.0.0.1:5000"
+harbor = 0
+cluster = root.."cluster/clusterelem.lua"
 start = "chatmain"
 bootstrap = "snlua bootstrap"
 luaservice = root.."service/?.lua;"..root.."loginsvr/?.lua;"..root.."chatsvr/?.lua;"..root.."gamesvr/?.lua;"
@@ -12,6 +11,8 @@ lualoader = root.."lualib/loader.lua"
 lua_path = root.."lualib/?.lua;"..root.."lualib/?/init.lua"
 lua_cpath = root .. "luaclib/?.so"
 cpath = root.."cservice/?.so"
+
+chat_servername = "chatsvr1"
 
 chat_address = "0.0.0.0"
 chat_port_from = 12001
