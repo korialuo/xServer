@@ -25,3 +25,5 @@ db_password = "root"
 db_name = "accountdb"
 db_maxpacketsz = 1048576
 db_instance = 2
+
+debug_console_port = 8101

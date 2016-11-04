@@ -23,5 +23,8 @@ skynet.start(function()
         skynet.call(gamegate, "lua", "open", conf)
         conf.port = conf.port + 1
     until(conf.port > game_port_to)
+    -- start debug console
+    local debug_console_port = assert(tonumber(skynet.getenv("debug_console_port")))
+    skynet.newservice("debug_console", "0.0.0.0", debug_console_port)
     skynet.exit()
 end)

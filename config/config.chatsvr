@@ -19,3 +19,5 @@ chat_port_from = 12001
 chat_port_to = 12002
 maxclient = 1024
 nodelay = true
+
+debug_console_port = 8201
