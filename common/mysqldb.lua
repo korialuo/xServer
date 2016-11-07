@@ -8,11 +8,12 @@ local instance = assert(tonumber(args[2] or 1))
 
 local slaves = {}
 local balance = 1
-local database
+local database = nil
 
 local CMD = {}
 
 function CMD.query(q)
+    if not database then return nil end
     return database:query(q)
 end
 

@@ -44,6 +44,11 @@ function utils.dump(obj)
     return dumpObj(obj, 0)
 end
 
-
+function utils.strsplit(str, sep)
+        local sep, fields = sep or ",", {}
+        local pattern = string.format("([^%s]+)", sep)
+        string.gsub(str or "", pattern, function(c) table.insert(fields, c) end)
+        return fields
+end
 
 return utils

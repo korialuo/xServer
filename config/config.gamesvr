@@ -6,9 +6,9 @@ harbor = 0
 cluster = root.."cluster/clusterelem.lua"
 start = "gamemain"
 bootstrap = "snlua bootstrap"
-luaservice = root.."service/?.lua;"..root.."common/?.lua;"..root.."loginsvr/?.lua;"..root.."chatsvr/?.lua;"..root.."gamesvr/?.lua;"
+luaservice = root.."service/?.lua;"..root.."common/?.lua;"..root.."gamesvr/?.lua;"
 lualoader = root.."lualib/loader.lua"
-lua_path = root.."lualib/?.lua;"..root.."lualib/?/init.lua"
+lua_path = root.."lualib/?.lua;"..root.."lualib/?/init.lua;"..root.."global/?.lua;"..root.."global/?/?.lua;"
 lua_cpath = root .. "luaclib/?.so"
 cpath = root.."cservice/?.so"
 

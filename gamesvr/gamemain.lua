@@ -26,5 +26,6 @@ skynet.start(function()
     -- start debug console
     local debug_console_port = assert(tonumber(skynet.getenv("debug_console_port")))
     skynet.newservice("debug_console", "0.0.0.0", debug_console_port)
+    skynet.newservice("xconsole")
     skynet.exit()
 end)
