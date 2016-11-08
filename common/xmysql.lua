@@ -40,7 +40,8 @@ local function connect_db()
         password = assert(skynet.getenv("db_password")),
         max_packet_size = assert(tonumber(skynet.getenv("db_maxpacketsz"))),
         on_connect = function(db)
-            db:query("set charset utf8mb4")
+            db:query("set charset utf8mb4;")
+            skynet.error("Mysql version: "..db:server_ver())
         end
     })
     if not database then

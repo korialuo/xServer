@@ -4,7 +4,7 @@ local socketdriver = require "socketdriver"
 local netpack = require "netpack"
 local crypt = require "crypt"
 
-local chatsvr = assert(...)
+local mainsvr = assert(tonumber(...))
 local connections = {}
 local handler = {}
 local CMD = {}
@@ -15,7 +15,13 @@ local function do_cleanup(fd)
 end
 
 local function do_dispatchmsg(conn, msg, sz)
-    return skynet.send(chatsvr, "client", conn, msg, sz)
+    local msgdata = skynet.tostring(msg, sz)
+    local ok = false;
+    ok, msgdata = pcall(crypt.desdecode, conn.secret, msgdata)
+    if not ok then skynet.error("Des decode error, fd: "..conn.fd) end
+    ok, msgdata = pcall(crypt.base64decode(msgdata))
+    if not ok then skynet.error("Base64 decode error: fd: ".. conn.fd) end
+    skynet.send(mainsvr, "client", conn, msgdata)
 end
 
 local function do_verify(conn, msg, sz)
@@ -25,7 +31,7 @@ local function do_verify(conn, msg, sz)
         skynet.error("Connection("..fd..") do verify error.")
         gateserver.closeclient(conn.fd)
     end
-    conn.proc = do_dispatchmsg
+    conn.proc = do_login
 end
 
 local function do_auth(conn, msg, sz)

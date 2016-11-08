@@ -16,7 +16,7 @@ skynet.start(function()
         nodelay = not not (skynet.getenv("nodelay") == "true")
     }
     repeat
-        local chatgate = skynet.newservice("chatgate", chatsvr)
+        local chatgate = skynet.newservice("xgate", chatsvr)
         skynet.call(chatgate, "lua", "open", conf)
         conf.port = conf.port + 1
     until(conf.port > chat_port_to)
