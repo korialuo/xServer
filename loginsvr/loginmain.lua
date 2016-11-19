@@ -11,19 +11,21 @@ skynet.start(function()
     skynet.name(".loginsvr", loginsvr)
     cluster.open("loginsvr")
     -- start logingate
-    local login_port_from = assert(tonumber(skynet.getenv("login_port_from")))
-    local login_port_to = assert(tonumber(skynet.getenv("login_port_to")))
+    -- tcp gate
+    local login_port_tcp = assert(tonumber(skynet.getenv("login_port_tcp")))
+    local login_address = assert(skynet.getenv("login_address")) 
     local conf = {
-        address = assert(tostring(skynet.getenv("login_address"))),
-        port = login_port_from,
+        address = login_address,
+        port = login_port_tcp,
         maxclient = assert(tonumber(skynet.getenv("maxclient"))),
         nodelay = not not (skynet.getenv("nodelay") == "true")
     }
-    repeat
-        local logingate = skynet.newservice("xgate", loginsvr)
-        skynet.call(logingate, "lua", "open", conf)
-        conf.port = conf.port + 1
-    until(conf.port > login_port_to)
+    local logingate_tcp = skynet.newservice("xgate_tcp", loginsvr)
+    skynet.call(logingate_tcp, "lua", "open", conf)
+    -- websocket gate
+    local login_port_ws = assert(tonumber(skynet.getenv("login_port_ws")))
+    local logingate_ws = skynet.newservice("xgate_ws", loginsvr)
+    skynet.call(logingate_ws, "lua", "open", string.format("%s:%d", login_address, login_port_ws))
     -- start debug cosole
     local debug_console_port = assert(tonumber(skynet.getenv("debug_console_port")))
     skynet.newservice("debug_console", "0.0.0.0", debug_console_port)

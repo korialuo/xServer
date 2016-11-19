@@ -15,8 +15,8 @@ cpath = root.."cservice/?.so"
 chat_servername = "chatsvr1"
 
 chat_address = "0.0.0.0"
-chat_port_from = 12001
-chat_port_to = 12002
+chat_port_tcp = 12001
+chat_port_ws = 12002
 maxclient = 1024
 nodelay = true
 
