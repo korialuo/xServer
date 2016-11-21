@@ -9,21 +9,21 @@ skynet.register_protocol {
     unpack = skynet.tostring
 }
 
+local users = {}  -- usrid --> user info: {usrid, clisession, svrid}
+
 local MSG = {}
 
 skynet.start(function()
-    skynet.dispatch("client", function(session, source, conn, msg, ...)
-        local ok, msgdata = pcall(crypt.desdecode, conn.secret, crypt.base64decode(msg))
-        if not ok then skynet.error("Des decode client message error. fd: "..conn.fd) return end
-        ok, msgdata = pcall(cjson.decode, msgdata)
+    skynet.dispatch("client", function(session, source, clisession, msg, ...)
+        local ok, msgdata = pcall(cjson.decode, msg)
         if ok then
             local m = msgdata.__m
             if m and type(m) == "string" then
                 local f = MSG[m]
-                if not f then skynet.error("Unregisted client message: "..m) else f(conn, msgdata) end
+                if not f then skynet.error("Unregisted client message: "..m) else f(clisession, msgdata) end
             end
         else
-            skynet.error("Parse client message error. fd: "..conn.fd)
+            skynet.error("Parse client message error. fd: "..clisession.fd)
         end
     end)
 end)

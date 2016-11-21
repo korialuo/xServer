@@ -10,11 +10,11 @@ skynet.register_protocol {
     unpack = skynet.tostring
 }
 
-local users = {}  -- usrid --> user info: {usrid, conn, svrid}
+local users = {}  -- usrid --> user info: {usrid, session, svrid}
 
 local MSG = {}
 
-function MSG.login(conn, msg)
+function MSG.login(clisession, msg)
     local user, server, password = msg.u, msg.s, msg.p
     local q = "CALL login('"..user.."', "..password.."');"
     q = skynet.call(logindb, "lua", "query", q)
@@ -22,16 +22,16 @@ function MSG.login(conn, msg)
 end
 
 skynet.start(function()
-    skynet.dispatch("client", function(session, source, conn, msg, ...)
+    skynet.dispatch("client", function(session, source, clisession, msg, ...)
         local ok, msgdata = pcall(cjson.decode, msg)
         if ok then
             local m = msgdata.__m
             if m and type(m) == "string" then
                 local f = MSG[m]
-                if not f then skynet.error("Unregisted client message: "..m) else f(conn, msgdata) end
+                if not f then skynet.error("Unregisted client message: "..m) else f(clisession, msgdata) end
             end
         else
-            skynet.error("Parse client message error. fd: "..conn.fd)
+            skynet.error("Parse client message error. fd: "..clisession.fd)
         end
     end)
 end)
