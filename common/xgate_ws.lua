@@ -94,6 +94,8 @@ local function handle_socket(fd, addr)
         if url == "/ws" then
             local ws = websocket.new(fd, addr, header, handler)
             ws:start()
+        else
+            socket.close(fd)
         end
     end
 end

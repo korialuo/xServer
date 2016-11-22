@@ -17,7 +17,7 @@ skynet.start(function()
         address = game_address,
         port = game_port_tcp,
         maxclient = assert(tonumber(skynet.getenv("maxclient"))),
-        nodelay = not not (skynet.getenv("nodelay") == "true")
+        nodelay = skynet.getenv("nodelay") == "true"
     }
     local gamegate_tcp = skynet.newservice("xgate_tcp", gamesvr)
     skynet.call(gamegate_tcp, "lua", "open", conf)

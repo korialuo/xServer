@@ -14,7 +14,7 @@ skynet.start(function()
         address = chat_address,
         port = chat_port_tcp,
         maxclient = assert(tonumber(skynet.getenv("maxclient"))),
-        nodelay = not not (skynet.getenv("nodelay") == "true")
+        nodelay = skynet.getenv("nodelay") == "true"
     }
     local chatgate_tcp = skynet.newservice("xgate_tcp", chatsvr)
     skynet.call(chatgate_tcp, "lua", "open", conf)

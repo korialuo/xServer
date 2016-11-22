@@ -18,7 +18,7 @@ skynet.start(function()
         address = login_address,
         port = login_port_tcp,
         maxclient = assert(tonumber(skynet.getenv("maxclient"))),
-        nodelay = not not (skynet.getenv("nodelay") == "true")
+        nodelay = skynet.getenv("nodelay") == "true"
     }
     local logingate_tcp = skynet.newservice("xgate_tcp", loginsvr)
     skynet.call(logingate_tcp, "lua", "open", conf)
