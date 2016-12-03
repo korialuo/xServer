@@ -6,6 +6,7 @@ local cjson = require "cjson"
 skynet.register_protocol {
     name = "client",
     id = skynet.PTYPE_CLIENT,
+    pack = function(m) return tostring(m) end,
     unpack = skynet.tostring
 }
 

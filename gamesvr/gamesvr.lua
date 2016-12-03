@@ -6,7 +6,9 @@ local cjson = require "cjson"
 local gamedb = assert(tonumber(...))
 skynet.register_protocol {
     name = "client",
-    id = skynet.PTYPE_CLIENT
+    id = skynet.PTYPE_CLIENT,
+    pack = function(m) tostring(m) end,
+    unpack = skynet.tostring
 }
 
 local users = {}  -- usrid --> user info: {usrid, clisession, svrid}

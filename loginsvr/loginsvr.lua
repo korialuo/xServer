@@ -7,6 +7,7 @@ local logindb = assert(tonumber(...))
 skynet.register_protocol {
     name = "client",
     id = skynet.PTYPE_CLIENT,
+    pack = function(m) tostring(m) end,
     unpack = skynet.tostring
 }
 
