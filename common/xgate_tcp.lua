@@ -19,7 +19,7 @@ local function do_cleanup(fd)
 end
 
 local function do_dispatchmsg(session, msg, sz)
-    local msgdata = skynet.tostring(msg, sz)
+    local msgdata = netpack.tostring(msg, sz)
     local ok = false
     ok, msgdata = pcall(crypt.desdecode, session.secret, msgdata)
     if not ok then skynet.error("Des decode error, fd: "..session.fd) return end

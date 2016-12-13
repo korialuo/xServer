@@ -1,14 +1,13 @@
 local skynet = require "skynet"
 local socketdriver = require "socketdriver"
-local crypt = require "crypt"
 local cjson = require "cjson"
 
 local gamedb = assert(tonumber(...))
 skynet.register_protocol {
     name = "client",
     id = skynet.PTYPE_CLIENT,
-    pack = function(m) tostring(m) end,
-    unpack = skynet.tostring
+    pack = skynet.pack,
+    unpack = skynet.unpack
 }
 
 local users = {}  -- usrid --> user info: {usrid, clisession, svrid}
