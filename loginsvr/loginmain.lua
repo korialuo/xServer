@@ -4,10 +4,10 @@ require "skynet.manager"
 
 skynet.start(function()
     -- start logindb
-    local db_instance = assert(tonumber(skynet.getenv("db_instance")))
-    local logindb = skynet.newservice("xmysql", "master", db_instance)
+    local logindb = skynet.newservice("xmysql", "master", assert(tonumber(skynet.getenv("db_instance"))))
+    skynet.name(".logindb", logindb)
     -- start loginsvr
-    local loginsvr = skynet.uniqueservice("loginsvr", logindb)
+    local loginsvr = skynet.uniqueservice("loginsvr")
     skynet.name(".loginsvr", loginsvr)
     cluster.open("loginsvr")
     -- start logingate

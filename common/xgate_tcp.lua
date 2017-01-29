@@ -14,8 +14,8 @@ function CMD.kick(fd)
 end
 
 local function do_cleanup(fd)
-    local session = sessions[fd]
-    if session then sessions[fd] = nil end
+    skynet.send(mainsvr, "lua", "disconnect", sessions[fd])
+    if sessions[fd] then sessions[fd] = nil end
 end
 
 local function do_dispatchmsg(session, msg, sz)
@@ -23,8 +23,6 @@ local function do_dispatchmsg(session, msg, sz)
     local ok = false
     ok, msgdata = pcall(crypt.desdecode, session.secret, msgdata)
     if not ok then skynet.error("Des decode error, fd: "..session.fd) return end
-    ok, msgdata = pcall(crypt.base64decode(msgdata))
-    if not ok then skynet.error("Base64 decode error: fd: ".. session.fd) return end
     skynet.send(mainsvr, "client", session, msgdata)
 end
 
@@ -36,7 +34,7 @@ local function do_verify(session, msg, sz)
         gateserver.closeclient(session.fd)
         return
     end
-    session.proc = do_login
+    session.proc = do_dispatchmsg
 end
 
 local function do_auth(session, msg, sz)

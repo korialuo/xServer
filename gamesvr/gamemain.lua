@@ -1,14 +1,15 @@
 local skynet = require "skynet"
 local cluster = require "cluster"
+require "skynet.manager"
 
 skynet.start(function()
-    -- start gamedb
-    local db_instance = tonumber(skynet.getenv("db_instance"))
-    local gamedb = skynet.newservice("xmysql", "master", db_instance)
+    -- start logindb
+    local gamedb = skynet.newservice("xmysql", "master", assert(tonumber(skynet.getenv("db_instance"))))
+    skynet.name(".gamedb", gamedb)
     -- start gamesvr
-    local game_servername = assert(skynet.getenv("game_servername"))
-    local gamesvr = skynet.uniqueservice("gamesvr", gamedb)
-    cluster.open(game_servername)
+    local gamesvr = skynet.uniqueservice("gamesvr")
+    skynet.name(".gamesvr", gamesvr)
+    cluster.open("gamesvr")
     -- start gamegate
     -- tcp gate
     local game_port_tcp = assert(tonumber(skynet.getenv("game_port_tcp")))

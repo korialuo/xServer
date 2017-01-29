@@ -1,0 +1,4 @@
+.package {
+    msgname 0 : string
+    msgdata 1 : string
+}

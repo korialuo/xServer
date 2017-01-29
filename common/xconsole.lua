@@ -1,5 +1,4 @@
 local skynet = require "skynet"
-local snax   = require "snax"
 local socket = require "socket"
 local utils = require "utils"
 require "skynet.manager"

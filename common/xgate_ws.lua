@@ -11,16 +11,14 @@ local handler = {}
 local CMD = {}
 
 local function do_cleanup(ws)
-    local session = sessions[ws.fd]
-    if session then sessions[fd] = nil end
+    skynet.send(mainsvr, "lua", "disconnect", sessions[ws.fd])
+    if sessions[ws.fd] then sessions[ws.fd] = nil end
 end
 
 local function do_dispatchmsg(session, msg)
     local ok, msgdata = false, msg
     ok, msgdata = pcall(crypt.desdecode, session.secret, msgdata)
     if not ok then skynet.error("Des decode error, fd: "..session.ws.fd) return end
-    ok, msgdata = pcall(crypt.base64decode(msgdata))
-    if not ok then skynet.error("Base64 decode error: fd: ".. session.ws.fd) return end
     skynet.send(mainsvr, "client", session, msgdata)
 end
 
@@ -32,7 +30,7 @@ local function do_verify(session, msg)
         session.ws:close()
         return
     end
-    session.proc = do_login
+    session.proc = do_dispatchmsg
 end
 
 local function do_auth(session, msg)
