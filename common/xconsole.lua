@@ -20,24 +20,42 @@ function CMD.quit(argv)
     return true
 end
 
+function CMD.launch(argv)
+    if #argv <= 3 then
+        return false
+    end
+    if argv[2] == "lua" then
+        skynet.newservice(argv[3], table.unpack(argv, 4))
+    elseif argv[2] == "c" then
+        skynet.launch(argv[3], table.unpack(argv, 4))
+    else
+        return false
+    end
+    return true
+end
+
 local function console_main_loop()
 	local stdin = socket.stdin()
 	socket.lock(stdin)
 	while true do
-		local cmdline = socket.readline(stdin, "\n")
-		local argv = utils.strsplit(cmdline, ' ')
-		if #argv > 0 then
+        local cmdline = socket.readline(stdin, "\n")
+        local argv = utils.strsplit(cmdline, ' ')
+        if #argv > 0 then
             local c = argv[1]
             local f = CMD[c]
             if f then 
                 local ret = f(argv)
-                if not ret then skynet.error("Command "..argv[1].." execute error.") end 
+                if not ret then 
+                    skynet.error("Command '"..argv[1].."' execute error.") 
+                else
+                    skynet.error("Command '"..argv[1].."' execute success.")
+                end 
             end
         end
 	end
-	socket.unlock(stdin)
+    socket.unlock(stdin)
 end
 
 skynet.start(function()
-	skynet.fork(console_main_loop)
+    skynet.fork(console_main_loop)
 end)
