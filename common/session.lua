@@ -1,6 +1,7 @@
 local sproto = require "sproto"
 local socketdriver = require "socketdriver"
 local netpack = require "netpack"
+local lzc = require "lzc"
 
 local proto
 
@@ -48,10 +49,11 @@ function session:checkplayer(usrid)
 end
 
 -- 根据协议序列化数据并发送
-function session:send(msgname, data)
-    local ok, msg = pcall(sproto.encode, proto, msgname, data)
+function session:send(msgid, msgname, data, compress)
+    local ok, msg = pcall(sproto.encode, proto.proto, msgname, data)
     if not ok then return end
-    ok, msg = pcall(sproto.encode, proto, "package", {msgname = msgname, msgdata = msg})
+    if compress then msg = lzc.compress(msg) end
+    ok, msg = pcall(sproto.encode, proto.wrap, "MessageWrap", {msgid = msgid, compress = compress, msgdata = msg})
     if not ok then return end
     socketdriver.send(self.fd, netpack.pack(msg))
     return self

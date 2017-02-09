@@ -3,6 +3,7 @@ local session = require "session"
 local sessionmgr = require "sessionmgr"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
+local lzc = require "lzc"
 
 skynet.register_protocol {
     name = "client",
@@ -16,27 +17,33 @@ local MSG = require "handler_msg"
 local CMD = require "handler_cmd"
 
 skynet.init(function()
-    sprotoloader.register(assert(skynet.getenv("root")).."proto/loginsvr.c2s", 1)
-    sprotoloader.register(assert(skynet.getenv("root")).."proto/loginsvr.s2c", 2)
-    proto.c2s = sprotoloader.load(1)
-    proto.s2c = sprotoloader.load(2)
-    session.proto(proto.s2c)
+    proto.wrap = sproto.parse [[
+        .MessageWrap {
+            msgid 0 : integer
+            compress 1 : boolean
+            msgdata 2 : string
+        }
+    ]]
+    sprotoloader.register(assert(skynet.getenv("root")).."proto/loginsvr.sproto", 1)
+    proto.proto = sprotoloader.load(1)
+    session.proto(proto)
 end)
 
 skynet.start(function()
     skynet.dispatch("client", function(session, source, clisession, msg, ...)
-        local ok, package = pcall(sproto.decode, proto.c2s, "package", msg)
+        local ok, wrap = pcall(sproto.decode, proto.wrap, "MessageWrap", msg)
         if ok then
-            local f = MSG[package.msgname]
+            local f = MSG[wrap.msgid]
             if f then
                 local cs = sessionmgr.find(clisession.fd)
                 if not cs then
                     cs = sessionmgr.newsession(clisession)
                     sessionmgr.addsession(cs):bindgate(source)
                 end
-                f(cs, package.msgdata, proto)
+                if wrap.compress then wrap.msgdata = lzc.decompress(wrap.msgdata) end
+                f(cs, wrap.msgdata, proto)
             else
-                skynet.error("loginsvr not registed handler for msgname: "..package.msgname)
+                skynet.error("loginsvr not registed handler for msgid: "..wrap.msgid)
             end
         else
             skynet.error("loginsvr parse sproto package error. fd: "..session.fd)
