@@ -20,17 +20,23 @@ end
 
 local function do_dispatchmsg(session, msg, sz)
     local msgdata = netpack.tostring(msg, sz)
-    local ok = false
+    local ok
     ok, msgdata = pcall(crypt.desdecode, session.secret, msgdata)
     if not ok then skynet.error("Des decode error, fd: "..session.fd) return end
     skynet.send(mainsvr, "client", session, msgdata)
 end
 
 local function do_verify(session, msg, sz)
-    local hmac = crypt.base64decode(netpack.tostring(msg, sz))
-    local verify = crypt.hmac64(session.challenge, session.secret)
-    if hmac ~= verify then
-        skynet.error("session("..session.fd..") do verify error.")
+    local ok, hmac = pcall(crypt.base64decode, netpack.tostring(msg, sz))
+    if not ok then
+        skynet.error("session("..session.fd..") do verify error. invalid base64str.")
+        gateserver.closeclient(session.fd)
+        return
+    end
+    local verify
+    ok, verify = pcall(crypt.hmac_sha1, session.challenge, session.secret)
+    if (not ok) or (hmac ~= verify) then
+        skynet.error("session("..session.fd..") do verify error. verify failed.")
         gateserver.closeclient(session.fd)
         return
     end
@@ -38,9 +44,13 @@ local function do_verify(session, msg, sz)
 end
 
 local function do_auth(session, msg, sz)
-    -- base64encode(8 bytes randomkey) is 12 bytes.
     if sz == 12 then
-        local cex = crypt.base64decode(netpack.tostring(msg, sz))
+        local ok, cex = pcall(crypt.base64decode, netpack.tostring(msg, sz))
+        if not ok then
+            skynet.error("session("..session.fd..") do auth error. invalid base64str.")
+            gateserver.closeclient(session.fd)
+            return
+        end
         local skey = crypt.randomkey()
         local sex = crypt.dhexchange(skey)
         session.secret = crypt.dhsecret(cex, skey)

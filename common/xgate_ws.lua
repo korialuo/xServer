@@ -16,17 +16,22 @@ local function do_cleanup(ws)
 end
 
 local function do_dispatchmsg(session, msg)
-    local ok, msgdata = false, msg
-    ok, msgdata = pcall(crypt.desdecode, session.secret, msgdata)
+    local ok, msgdata = pcall(crypt.desdecode, session.secret, msg)
     if not ok then skynet.error("Des decode error, fd: "..session.ws.fd) return end
     skynet.send(mainsvr, "client", session, msgdata)
 end
 
 local function do_verify(session, msg)
-    local hmac = crypt.base64decode(msg)
-    local verify = crypt.hmac64(session.challenge, session.secret)
+    local ok, hmac = pcall(crypt.base64decode, msg)
+    if not ok then
+        skynet.error("session("..session.ws.fd..") do verify error. invalid base64str.")
+        session.ws:close()
+        return
+    end
+    local verify
+    ok, verify = pcall(crypt.hmac_sha1, session.challenge, session.secret)
     if hmac ~= verify then
-        skynet.error("session("..session.ws.fd..") do verify error.")
+        skynet.error("session("..session.ws.fd..") do verify error. verify failed.")
         session.ws:close()
         return
     end
@@ -34,9 +39,13 @@ local function do_verify(session, msg)
 end
 
 local function do_auth(session, msg)
-    -- base64encode(8 bytes randomkey) is 12 bytes.
     if string.len(msg) == 12 then
-        local cex = crypt.base64decode(msg)
+        local ok, cex = pcall(crypt.base64decode, msg)
+        if not ok then
+            skynet.error("session("..session.ws.fd..") do auth error. invalid base64str.")
+            session.ws:close()
+            return
+        end
         local skey = crypt.randomkey()
         local sex = crypt.dhexchange(skey)
         session.secret = crypt.dhsecret(cex, skey)
