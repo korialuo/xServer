@@ -1,6 +1,7 @@
 local sproto = require "sproto"
 local socketdriver = require "socketdriver"
 local netpack = require "netpack"
+local crypt = require "crypt"
 local lzc = require "lzc"
 
 local proto
@@ -55,13 +56,15 @@ function session:send(msgid, msgname, data, compress)
     if compress then msg = lzc.compress(msg) end
     ok, msg = pcall(sproto.encode, proto.wrap, "MessageWrap", {msgid = msgid, compress = compress, msgdata = msg})
     if not ok then return end
-    socketdriver.send(self.fd, netpack.pack(msg))
+    self:sendraw(msg)
     return self
 end
 
 -- 发送原生数据
 function session:sendraw(data)
-    socketdriver.send(self.fd, netpack.pack(data))
+    local ok, d = pcall(crypt.desencode, self.secret, data)
+    if not ok then return end
+    socketdriver.send(self.fd, netpack.pack(d))
 end
 
 return session
