@@ -14,16 +14,14 @@ local CMD = {}
 
 function CMD.query(q)
     if not database then return nil end
-    return database:query(q)
+    local ok, rslt = pcall(mysql.query, database, q)
+    return ok, rslt
 end
 
 local function dispatch_message(cmd, ...)
     if mode == "master" then
         local slv = slaves[balance]
-        balance = balance + 1
-        if balance > instance then
-            balance = 1
-        end
+        balance = balance % instance + 1
         return skynet.call(slv, "lua", cmd, ...)
     elseif mode == "slave" then
         local f = assert(CMD[cmd])
@@ -50,22 +48,16 @@ local function connect_db()
     skynet.error("Success to connect to database.")
 end
 
-if mode == "master" then
-    skynet.start(function()
-        -- launch slave service
+skynet.dispatch("lua", function(session, source, command, ...)
+    skynet.ret(skynet.pack(dispatch_message(command, ...)))
+end)
+
+skynet.start(function()
+    if mode == "master" then
         for _ = 1, instance do
             table.insert(slaves, skynet.newservice(SERVICE_NAME, "slave"))
         end
-        -- dispatch message
-        skynet.dispatch("lua", function(session, source, command, ...)
-            skynet.ret(skynet.pack(dispatch_message(command, ...)))
-        end)
-    end)
-elseif mode == "slave" then
-    skynet.start(function()
+    elseif mode == "slave" then
         connect_db()
-        skynet.dispatch("lua", function(session, source, command, ...)
-            skynet.ret(skynet.pack(dispatch_message(command, ...)))
-        end)
-    end)
-end
+    end
+end)
