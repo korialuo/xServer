@@ -12,6 +12,8 @@ local nslave = assert(tonumber(args[2] or 1))
 local slaves = {}
 local balance = 1
 
+local handler = require "handler_web"
+
 
 local function response(fd, ...)
     local ok, err = httpd.write_response(sockethelper.writefunc(fd), ...)
@@ -30,13 +32,12 @@ function CMD.request(fd)
             response(fd, code)
         else
             local path, query = urllib.parse(url)
-            if query then
-                local q = urllib.parse_query(query)
-                for k, v in pairs(q) do
-                
-                end
-            end
-            response(fd, code, "OK")
+            if (path and path ~= '/') and (path:sub(-1, -1) == '/') then path = path:sub(1, -2) end
+            if query then query = urllib.parse_query(query) end
+            local f = handler[method][path]
+            local ret = "ERROR"
+            if f then ret = f(query) end
+            response(fd, code, ret)
         end
     else
         if url == sockethelper.socket_error then
@@ -66,7 +67,7 @@ skynet.start(function()
             local slv = skynet.newservice(SERVICE_NAME, "slave")
             table.insert(slaves, slv)
         end
-        local serverfd = socket.listen("localhost", "8080")
+        local serverfd = socket.listen("0.0.0.0", "8080")
         socket.start(serverfd, function(fd, addr)
             local slv = slaves[balance]
             balance = balance % nslave + 1
