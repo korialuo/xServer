@@ -11,8 +11,12 @@ local handler = {}
 local CMD = {}
 
 local function do_cleanup(ws)
-    skynet.send(mainsvr, "lua", "disconnect", sessions[ws.fd])
-    if sessions[ws.fd] then sessions[ws.fd] = nil end
+    local session = sessions[ws.fd]
+    if session then
+        session.proc = nil
+        sessions[ws.fd] = nil
+    end
+    skynet.send(mainsvr, "lua", "disconnect", session or ws.fd)
 end
 
 local function do_dispatchmsg(session, msg)
@@ -35,6 +39,8 @@ local function do_verify(session, msg)
         session.ws:close()
         return
     end
+    session.proc = nil
+    skynet.send(mainsvr, "lua", "connect", session)
     session.proc = do_dispatchmsg
 end
 

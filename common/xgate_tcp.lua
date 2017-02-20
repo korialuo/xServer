@@ -14,8 +14,12 @@ function CMD.kick(fd)
 end
 
 local function do_cleanup(fd)
-    skynet.send(mainsvr, "lua", "disconnect", sessions[fd])
-    if sessions[fd] then sessions[fd] = nil end
+    local session = sessions[fd]
+    if session then
+        session.proc = nil
+        sessions[fd] = nil
+    end
+    skynet.send(mainsvr, "lua", "disconnect", session or fd)
 end
 
 local function do_dispatchmsg(session, msg, sz)
@@ -40,6 +44,8 @@ local function do_verify(session, msg, sz)
         gateserver.closeclient(session.fd)
         return
     end
+    session.proc = nil
+    skynet.send(mainsvr, "lua", "connect", session)
     session.proc = do_dispatchmsg
 end
 
@@ -81,7 +87,7 @@ function handler.connect(fd, addr)
     do_handshake(session)
 end
 
-function handler.dissessionect(fd)
+function handler.disconnect(fd)
     do_cleanup(fd)
 end
 

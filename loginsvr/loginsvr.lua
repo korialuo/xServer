@@ -29,32 +29,30 @@ skynet.init(function()
     session.proto(proto)
 end)
 
-skynet.start(function()
-    skynet.dispatch("client", function(session, source, clisession, msg, ...)
-        local ok, wrap = pcall(sproto.decode, proto.wrap, "MessageWrap", msg)
-        if ok then
-            local f = MSG[wrap.msgid]
-            if f then
-                local cs = sessionmgr.find(clisession.fd)
-                if not cs then
-                    cs = sessionmgr.newsession(clisession)
-                    sessionmgr.addsession(cs):bindgate(source)
-                end
-                if wrap.compress then wrap.msgdata = lzc.decompress(wrap.msgdata) end
-                f(cs, wrap.msgdata, proto)
-            else
-                skynet.error("loginsvr not registed handler for msgid: "..wrap.msgid)
-            end
+skynet.dispatch("client", function(session, source, clisession, msg, ...)
+    local cs = sessionmgr.find(clisession.fd)
+    if not cs then return end
+    local ok, wrap = pcall(sproto.decode, proto.wrap, "MessageWrap", msg)
+    if ok then
+        local f = MSG[wrap.msgid]
+        if f then
+            if wrap.compress then wrap.msgdata = lzc.decompress(wrap.msgdata) end
+            f(cs, wrap.msgdata, proto)
         else
-            skynet.error("loginsvr parse sproto package error. fd: "..session.fd)
+            skynet.error("loginsvr not registed handler for msgid: "..wrap.msgid)
         end
-    end)
-    skynet.dispatch("lua", function(session, source, command, ...)
-        local f = assert(CMD[command])
-        if session == 0 then
-            f(...)
-        else
-            skynet.retpack(f(...))
-        end
-    end)
+    else
+        skynet.error("loginsvr parse sproto package error. fd: "..session.fd)
+    end
 end)
+
+skynet.dispatch("lua", function(session, source, command, ...)
+    local f = assert(CMD[command])
+    if session == 0 then
+        f(source, ...)
+    else
+        skynet.retpack(f(source, ...))
+    end
+end)
+
+skynet.start(function() end)
