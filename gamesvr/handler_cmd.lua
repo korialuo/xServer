@@ -3,11 +3,8 @@ local sessionmgr = require "sessionmgr"
 local CMD = {}
 
 function CMD.connect(gatesvr, clisession)
-    local cs = sessionmgr.find(clisession.fd)
-    if not cs then
-        cs = sessionmgr.newsession(clisession)
-        sessionmgr.addsession(cs):bindgate(gatesvr)
-    end
+    local cs = sessionmgr.newsession(clisession)
+    sessionmgr.addsession(cs):bindgate(gatesvr)
 end
 
 function CMD.disconnect(gatesvr, clisession)

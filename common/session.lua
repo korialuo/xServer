@@ -62,7 +62,7 @@ end
 
 -- 发送原生数据
 function session:sendraw(data)
-    local ok, d = pcall(crypt.desencode, self.secret, data)
+    local ok, d = pcall(crypt.teaencode, self.secret, data)
     if not ok then return end
     socketdriver.send(self.fd, netpack.pack(d))
 end

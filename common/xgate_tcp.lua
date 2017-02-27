@@ -25,8 +25,8 @@ end
 local function do_dispatchmsg(session, msg, sz)
     local msgdata = netpack.tostring(msg, sz)
     local ok
-    ok, msgdata = pcall(crypt.desdecode, session.secret, msgdata)
-    if not ok then skynet.error("Des decode error, fd: "..session.fd) return end
+    ok, msgdata = pcall(crypt.teadecode, session.secret, msgdata)
+    if not ok then skynet.error("Tea decode error, fd: "..session.fd) return end
     skynet.send(mainsvr, "client", session, msgdata)
 end
 
@@ -59,7 +59,7 @@ local function do_auth(session, msg, sz)
         end
         local skey = crypt.randomkey()
         local sex = crypt.dhexchange(skey)
-        session.secret = crypt.dhsecret(cex, skey)
+        session.secret = crypt.dhsecret(cex, skey)..session.challenge
         socketdriver.send(session.fd, netpack.pack(crypt.base64encode(sex)))
         session.proc = do_verify
     else

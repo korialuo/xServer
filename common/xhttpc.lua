@@ -1,8 +1,8 @@
 local skynet = require "skynet"
 local webclientlib = require "webclient"
 
-local webclient = nil
-local requests = nil
+local webclient
+local requests
 
 local function respond(request)
     if not request then return end

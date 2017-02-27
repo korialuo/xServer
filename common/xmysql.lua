@@ -8,7 +8,7 @@ local instance = assert(tonumber(args[2] or 1))
 
 local slaves = {}
 local balance = 1
-local database = nil
+local database
 
 local CMD = {}
 

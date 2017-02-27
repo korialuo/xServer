@@ -20,8 +20,8 @@ local function do_cleanup(ws)
 end
 
 local function do_dispatchmsg(session, msg)
-    local ok, msgdata = pcall(crypt.desdecode, session.secret, msg)
-    if not ok then skynet.error("Des decode error, fd: "..session.ws.fd) return end
+    local ok, msgdata = pcall(crypt.teadecode, session.secret, msg)
+    if not ok then skynet.error("Tea decode error, fd: "..session.ws.fd) return end
     skynet.send(mainsvr, "client", session, msgdata)
 end
 
@@ -54,7 +54,7 @@ local function do_auth(session, msg)
         end
         local skey = crypt.randomkey()
         local sex = crypt.dhexchange(skey)
-        session.secret = crypt.dhsecret(cex, skey)
+        session.secret = crypt.dhsecret(cex, skey)..session.challenge
         session.ws:send_text(crypt.base64encode(sex))
         session.proc = do_verify
     else
