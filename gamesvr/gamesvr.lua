@@ -39,7 +39,13 @@ skynet.dispatch("client", function(session, source, clisession, msg, ...)
     if ok then
         local f = MSG[wrap.msgid]
         if f then
-            if wrap.compress then wrap.msgdata = zeropack.unpack(wrap.msgdata) end
+            if wrap.compress then 
+                ok, wrap.msgdata = pcall(zeropack.unpack, wrap.msgdata)
+                if not ok then
+                    skynet.error("gamesvr unpack msgdata error. fd: ".. session.fd)
+                    return
+                end
+            end
             f(cs, wrap.msgdata, proto)
         else
             skynet.error("gamesvr not registed handler for msgid: "..wrap.msgid)
