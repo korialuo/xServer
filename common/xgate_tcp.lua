@@ -44,6 +44,7 @@ local function do_verify(session, msg, sz)
         gateserver.closeclient(session.fd)
         return
     end
+    session.secret = session.secret..session.challenge
     session.proc = nil
     skynet.send(mainsvr, "lua", "connect", session)
     session.proc = do_dispatchmsg
@@ -59,7 +60,7 @@ local function do_auth(session, msg, sz)
         end
         local skey = crypt.randomkey()
         local sex = crypt.dhexchange(skey)
-        session.secret = crypt.dhsecret(cex, skey)..session.challenge
+        session.secret = crypt.dhsecret(cex, skey)
         socketdriver.send(session.fd, netpack.pack(crypt.base64encode(sex)))
         session.proc = do_verify
     else
