@@ -3,7 +3,7 @@ local session = require "session"
 local sessionmgr = require "sessionmgr"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
-local lzc = require "lzc"
+local zeropack = require "zeropack"
 
 skynet.register_protocol {
     name = "client",
@@ -36,7 +36,7 @@ skynet.dispatch("client", function(session, source, clisession, msg, ...)
     if ok then
         local f = MSG[wrap.msgid]
         if f then
-            if wrap.compress then wrap.msgdata = lzc.decompress(wrap.msgdata) end
+            if wrap.compress then wrap.msgdata = zeropack.unpack(wrap.msgdata) end
             f(cs, wrap.msgdata, proto)
         else
             skynet.error("loginsvr not registed handler for msgid: "..wrap.msgid)

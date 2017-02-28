@@ -4,7 +4,7 @@ local sessionmgr = require "sessionmgr"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
 local randomlib = require "mt19937"
-local lzc = require "lzc"
+local zeropack = require "zeropack"
 
 skynet.register_protocol {
     name = "client",
@@ -39,7 +39,7 @@ skynet.dispatch("client", function(session, source, clisession, msg, ...)
     if ok then
         local f = MSG[wrap.msgid]
         if f then
-            if wrap.compress then wrap.msgdata = lzc.decompress(wrap.msgdata) end
+            if wrap.compress then wrap.msgdata = zeropack.unpack(wrap.msgdata) end
             f(cs, wrap.msgdata, proto)
         else
             skynet.error("gamesvr not registed handler for msgid: "..wrap.msgid)

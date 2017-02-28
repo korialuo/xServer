@@ -2,7 +2,7 @@ local sproto = require "sproto"
 local socketdriver = require "socketdriver"
 local netpack = require "netpack"
 local crypt = require "crypt"
-local lzc = require "lzc"
+local zeropack = require "zeropack"
 
 local proto
 
@@ -53,7 +53,7 @@ end
 function session:send(msgid, msgname, data, compress)
     local ok, msg = pcall(sproto.encode, proto.proto, msgname, data)
     if not ok then return end
-    if compress then msg = lzc.compress(msg) end
+    if compress then msg = zeropack.pack(msg) end
     ok, msg = pcall(sproto.encode, proto.wrap, "MessageWrap", {msgid = msgid, compress = compress, msgdata = msg})
     if not ok then return end
     self:sendraw(msg)
