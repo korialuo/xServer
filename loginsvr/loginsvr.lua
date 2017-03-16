@@ -12,44 +12,29 @@ skynet.register_protocol {
     unpack = skynet.unpack
 }
 
-local proto = {}
+local proto
 local MSG = require "handler_msg"
 local CMD = require "handler_cmd"
 
 skynet.init(function()
-    proto.wrap = sproto.parse [[
-        .MessageWrap {
-            msgid 0 : integer
-            compress 1 : boolean
-            msgdata 2 : string
-        }
-    ]]
     sprotoloader.register(assert(skynet.getenv("root")).."proto/loginsvr.sproto", 1)
-    proto.proto = sprotoloader.load(1)
+    proto = sprotoloader.load(1)
     session.proto(proto)
 end)
 
 skynet.dispatch("client", function(session, source, clisession, msg, ...)
     local cs = sessionmgr.find(clisession.fd)
     if not cs then return end
-    local ok, wrap = pcall(sproto.decode, proto.wrap, "MessageWrap", msg)
-    if ok then
-        local f = MSG[wrap.msgid]
-        if f then
-            if wrap.compress then 
-                ok, wrap.msgdata = pcall(zeropack.unpack, wrap.msgdata)
-                if not ok then
-                    skynet.error("loginsvr unpack msgdata error. fd: ".. session.fd)
-                    return
-                end
-            end
-            f(cs, wrap.msgdata, proto)
-        else
-            skynet.error("loginsvr not registed handler for msgid: "..wrap.msgid)
+    local ok
+    local compress, msgid, msgdata = string.unpack(">BHs2", msg)
+    if compress then
+        ok, msgdata = pcall(zeropack.unpack, msgdata)
+        if not ok then
+            skynet.error("loginsvr unpack msgdata error. fd: "..session.fd)
+            return
         end
-    else
-        skynet.error("loginsvr parse sproto package error. fd: "..session.fd)
     end
+    f(cs, msgdata, proto)
 end)
 
 skynet.dispatch("lua", function(session, source, command, ...)

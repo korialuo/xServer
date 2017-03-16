@@ -51,11 +51,10 @@ end
 
 -- 根据协议序列化数据并发送
 function session:send(msgid, msgname, data, compress)
-    local ok, msg = pcall(sproto.encode, proto.proto, msgname, data)
+    local ok, msg = pcall(sproto.encode, proto, msgname, data)
     if not ok then return end
     if compress then msg = zeropack.pack(msg) end
-    ok, msg = pcall(sproto.encode, proto.wrap, "MessageWrap", {msgid = msgid, compress = compress, msgdata = msg})
-    if not ok then return end
+    local raw = string.pack(">BHs2", compress and 1 or 0, msgid, msg, string.len(msg))
     self:sendraw(msg)
     return self
 end
