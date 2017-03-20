@@ -54,7 +54,7 @@ function session:send(msgid, msgname, data, compress)
     local ok, msg = pcall(sproto.encode, proto, msgname, data)
     if not ok then return end
     if compress then msg = zeropack.pack(msg) end
-    local raw = string.pack(">BHs2", compress and 1 or 0, msgid, msg, string.len(msg))
+    msg = string.pack(">BHs2", compress and 1 or 0, msgid, msg, string.len(msg))
     self:sendraw(msg)
     return self
 end
