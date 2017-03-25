@@ -129,6 +129,13 @@ function CMD.kick(fd)
     end
 end
 
+function CMD.send(fd, data)
+    local session = sessions[fd]
+    if session then
+        session.ws:send_binary(data)
+    end
+end
+
 skynet.start(function() 
     skynet.dispatch("lua", function(_, _, cmd, ...)
         local f = CMD[cmd]

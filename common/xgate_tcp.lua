@@ -13,6 +13,10 @@ function CMD.kick(fd)
     gateserver.closeclient(fd)
 end
 
+function CMD.send(fd, data)
+    socketdriver.send(fd, netpack.pack(data))
+end
+
 local function do_cleanup(fd)
     local session = sessions[fd]
     if session then

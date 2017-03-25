@@ -1,6 +1,5 @@
+local skynet = require "skynet"
 local sproto = require "sproto"
-local socketdriver = require "socketdriver"
-local netpack = require "netpack"
 local crypt = require "crypt"
 local zeropack = require "zeropack"
 
@@ -63,7 +62,7 @@ end
 function session:sendraw(data)
     local ok, d = pcall(crypt.teaencode, self.secret, data)
     if not ok then return end
-    socketdriver.send(self.fd, netpack.pack(d))
+    skynet.send(self.gate, "lua", "send", self.fd, d)
 end
 
 return session
