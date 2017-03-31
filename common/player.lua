@@ -20,9 +20,9 @@ function player:bindsession(session)
 end
 
 -- 根据协议序列化数据并发送
-function player:send(msgname, data)
+function player:send(msgid, msgname, data, compress)
     if self.clisession then
-        self.clisession:send(msgname, data)
+        self.clisession:send(msgid, msgname, data, compress)
     end
 end
 
