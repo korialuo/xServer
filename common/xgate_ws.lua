@@ -10,6 +10,13 @@ local sessions = {}
 local handler = {}
 local CMD = {}
 
+skynet.register_protocol {
+    name = "client",
+    id = skynet.PTYPE_CLIENT,
+    pack = skynet.pack,
+    unpack = skynet.unpack
+}
+
 local function do_cleanup(ws)
     local session = sessions[ws.fd]
     if session then
