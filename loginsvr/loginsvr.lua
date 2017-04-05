@@ -39,11 +39,7 @@ end)
 
 skynet.dispatch("lua", function(session, source, command, ...)
     local f = assert(CMD[command])
-    if session == 0 then
-        f(source, ...)
-    else
-        skynet.retpack(f(source, ...))
-    end
+    skynet.retpack(f(source, ...))
 end)
 
 skynet.start(function() end)
