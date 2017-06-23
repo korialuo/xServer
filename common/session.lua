@@ -1,7 +1,6 @@
 local skynet = require "skynet"
 local sproto = require "sproto"
-local crypt = require "crypt"
-local zeropack = require "zeropack"
+local crypt = require "skynet.crypt"
 
 local proto
 
@@ -52,7 +51,7 @@ end
 function session:send(msgid, msgname, data, compress)
     local ok, msg = pcall(sproto.encode, proto, msgname, data)
     if not ok then return end
-    if compress then msg = zeropack.pack(msg) end
+    if compress then msg = sproto.pack(msg) end
     msg = string.pack(">BHs2", compress and 1 or 0, msgid, msg, string.len(msg))
     self:sendraw(msg)
     return self

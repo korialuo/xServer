@@ -3,7 +3,6 @@ local session = require "session"
 local sessionmgr = require "sessionmgr"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
-local zeropack = require "zeropack"
 
 skynet.register_protocol {
     name = "client",
@@ -28,7 +27,7 @@ skynet.dispatch("client", function(session, source, clisession, msg, ...)
     local ok
     local compress, msgid, msgdata = string.unpack(">BHs2", msg)
     if compress then
-        ok, msgdata = pcall(zeropack.unpack, msgdata)
+        ok, msgdata = pcall(sproto.unpack, msgdata)
         if not ok then
             skynet.error("loginsvr unpack msgdata error. fd: "..session.fd)
             return

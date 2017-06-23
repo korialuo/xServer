@@ -1,8 +1,8 @@
 local skynet = require "skynet"
-local crypt = require "crypt"
+local crypt = require "skynet.crypt"
 local httpd = require "http.httpd"
 local websocket = require "websocket"
-local socket = require "socket"
+local socket = require "skynet.socket"
 local sockethelper = require "http.sockethelper"
 
 local mainsvr = assert(tonumber(...))

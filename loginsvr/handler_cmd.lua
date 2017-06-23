@@ -1,5 +1,4 @@
 local sessionmgr = require "sessionmgr"
-local crypt = require "crypt"
 
 local CMD = {}
 

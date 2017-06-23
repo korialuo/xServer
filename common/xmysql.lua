@@ -1,5 +1,5 @@
 local skynet = require "skynet"
-local mysql = require "mysql"
+local mysql = require "skynet.db.mysql"
 
 local args = table.pack(...)
 assert(args.n >= 1)

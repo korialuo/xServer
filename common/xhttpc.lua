@@ -1,5 +1,5 @@
 local skynet = require "skynet"
-local webclientlib = require "webclient"
+local webclientlib = require "extlib.webclient"
 
 local webclient
 local requests

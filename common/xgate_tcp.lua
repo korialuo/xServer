@@ -1,8 +1,8 @@
 local skynet = require "skynet"
 local gateserver = require "snax.gateserver"
-local socketdriver = require "socketdriver"
-local netpack = require "netpack"
-local crypt = require "crypt"
+local socketdriver = require "skynet.socketdriver"
+local netpack = require "skynet.netpack"
+local crypt = require "skynet.crypt"
 
 local mainsvr = assert(tonumber(...))
 local sessions = {}
