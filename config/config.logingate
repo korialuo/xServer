@@ -1,0 +1,24 @@
+root = "./"
+thread = 8
+logger = nil
+logpath = "./log/logingate"
+harbor = 0
+cluster = root.."cluster/clusterelem.lua"
+start = "gatemain"
+bootstrap = "snlua bootstrap"
+luaservice = root.."service/?.lua;"..root.."common/?.lua;"..root.."gatesvr/?.lua;"
+lualoader = root.."lualib/loader.lua"
+lua_path = root.."lualib/?.lua;"..root.."lualib/?/init.lua;"..root.."global/?.lua;"..root.."global/?/?.lua;"..root.."gatesvr/?.lua;"..root.."common/?.lua;"
+lua_cpath = root.."luaclib/?.so"
+cpath = root.."cservice/?.so"
+
+cluster_node = "logingate"
+server_node = "loginsvr"
+
+listen_address = "0.0.0.0"
+listen_port_tcp = 15101
+listen_port_ws = 15102
+max_client = 1024
+nodelay = true
+
+debug_console_port = 8501
