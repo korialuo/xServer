@@ -6,9 +6,10 @@ local proto
 
 local session = {}
 
--- 定义协议
+-- 协议
 function session.proto(p)
-    proto = p
+    if p then proto = p end
+    return proto
 end
 
 -- 创建会话
@@ -62,6 +63,11 @@ function session:sendraw(data)
     local ok, d = pcall(crypt.teaencode, self.secret, data)
     if not ok then return end
     skynet.send(self.gate, "lua", "send", self.fd, d)
+end
+
+-- 断开连接
+function session:kick()
+    skynet.send(self.gate, "lua", "kick", self.fd)
 end
 
 return session

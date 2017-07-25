@@ -10,7 +10,7 @@ end)
 local MSG = {}
 
 function MSG.redirect(clisession, msgdata)
-    cluster.send(server_node, "mainsvr", "client", clisession, msgdata)
+    cluster.send(server_node, ".mainsvr", "client", clisession, msgdata)
 end
 
 return MSG

@@ -16,9 +16,12 @@ local MSG = require "handler_msg"
 local CMD = require "handler_cmd"
 
 skynet.init(function()
+    -- load protocol
     sprotoloader.register(assert(skynet.getenv("root")).."proto/loginsvr.sproto", 1)
     proto = sprotoloader.load(1)
     session.proto(proto)
+    -- register message
+    MSG.register()
 end)
 
 skynet.dispatch("client", function(session, source, clisession, msg, ...)
@@ -29,11 +32,11 @@ skynet.dispatch("client", function(session, source, clisession, msg, ...)
     if compress then
         ok, msgdata = pcall(sproto.unpack, msgdata)
         if not ok then
-            skynet.error("loginsvr unpack msgdata error. fd: "..session.fd)
+            skynet.error("loginsvr unpack msgdata error. fd: "..clisession.fd)
             return
         end
     end
-    f(cs, msgdata, proto)
+    MSG.dispatch(clisession, msgid, msgdata)
 end)
 
 skynet.dispatch("lua", function(session, source, command, ...)

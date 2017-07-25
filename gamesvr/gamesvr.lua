@@ -12,16 +12,18 @@ skynet.register_protocol {
     unpack = skynet.unpack
 }
 
-local proto
 local MSG = require "handler_msg"
 local CMD = require "handler_cmd"
 
 skynet.init(function()
+    -- load protocol
     sprotoloader.register(assert(skynet.getenv("root")).."proto/gamesvr.sproto", 1)
-    proto = sprotoloader.load(1)
+    local proto = sprotoloader.load(1)
     session.proto(proto)
     -- random seed.
     randomlib.init(tostring(os.time()):reverse():sub(1, 6))
+    -- register message
+    MSG.register()
 end)
 
 skynet.dispatch("client", function(session, source, clisession, msg, ...)
@@ -32,11 +34,11 @@ skynet.dispatch("client", function(session, source, clisession, msg, ...)
     if compress then
         ok, msgdata = pcall(sproto.unpack, msgdata)
         if not ok then
-            skynet.error("gamesvr unpack msgdata error. fd: "..session.fd)
+            skynet.error("gamesvr unpack msgdata error. fd: "..clisession.fd)
             return
         end
     end
-    f(cs, msgdata, proto)
+    MSG.dispatch(clisession, msgid, msgdata)
 end)
 
 skynet.dispatch("lua", function(session, source, command, ...)

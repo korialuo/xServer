@@ -1,8 +1,10 @@
 local sessionmgr = require "sessionmgr"
+local cluster = require "skynet.cluster"
 
 local CMD = {}
 
-function CMD.connect(gatesvr, clisession)
+function CMD.connect(source, clisession, node)
+    local gatesvr = cluster.proxy(node, ".gatesvr")
     local cs = sessionmgr.newsession(clisession)
     sessionmgr.addsession(cs):bindgate(gatesvr)
 end

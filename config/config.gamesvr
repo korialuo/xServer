@@ -12,13 +12,7 @@ lua_path = root.."lualib/?.lua;"..root.."lualib/?/init.lua;"..root.."global/?.lu
 lua_cpath = root.."luaclib/?.so"
 cpath = root.."cservice/?.so"
 
-game_servername = "gamesvr1"
-
-game_address = "0.0.0.0"
-game_port_tcp = 13001
-game_port_ws = 13002
-maxclient = 1024
-nodelay = true
+cluster_node = "gamesvr"
 
 db_address = "127.0.0.1"
 db_port = 3306
