@@ -38,7 +38,7 @@ skynet.dispatch("client", function(session, source, clisession, msg, ...)
             return
         end
     end
-    MSG.dispatch(clisession, msgid, msgdata)
+    MSG.dispatch(cs, msgid, msgdata)
 end)
 
 skynet.dispatch("lua", function(session, source, command, ...)
